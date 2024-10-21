@@ -1,4 +1,27 @@
 # ciscodevnet-by-ccs-g01
+# Simple Captive Portal System
+
+## Overview
+
+This project implements a simple captive portal system for managing student internet access through a Raspberry Pi access point and a PfSense firewall. The architecture is straightforward, making it easy to understand and maintain.
+
+## Key Components
+
+- **Hardware Setup:**
+  - **Main Router:** Provides internet connection.
+  - **Laptop:** Runs the PfSense firewall.
+  - **Raspberry Pi:** Acts as the access point for students.
+
+- **Network Flow:**
+  1. Students connect to the Raspberry Pi WiFi.
+  2. Automatic redirect to the captive portal.
+  3. Students log in with credentials.
+  4. Access is granted or denied based on authentication.
+  5. Filtered internet access.
+
+## Basic Folder Structure
+
+
 ```mermaid
 graph TB
     subgraph Student["Student Device"]
