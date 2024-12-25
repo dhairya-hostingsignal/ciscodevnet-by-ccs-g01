@@ -1,0 +1,229 @@
+import React, { useState, useEffect } from "react";
+import {
+  LayoutDashboard,
+  Users,
+  Shield,
+  LogOut,
+  PlusCircle,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
+
+// Login Component
+const Login = ({ onLogin }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (username === "admin" && password === "admin") {
+      onLogin({ username });
+    } else {
+      setError("Invalid credentials! Please try again.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-blue-200">
+      <div className="bg-white p-6 rounded shadow-lg w-96">
+        <h2 className="text-2xl font-bold text-center mb-4 text-blue-600">
+          Login
+        </h2>
+        {error && <p className="text-red-500">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full p-2 border mb-4 rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border mb-4 rounded"
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Dashboard Component
+const Dashboard = () => {
+  const [status, setStatus] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("https://192.168.1.1/api/v2/status/system", {
+      headers: {
+        Accept: "application/json",
+        Authorization: "Basic " + btoa("admin:admin"),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setStatus(data.data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p>Loading Dashboard...</p>;
+
+  return (
+    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="p-4 bg-blue-100 rounded shadow">
+        <h2>System Uptime</h2>
+        <p>{status.uptime}</p>
+      </div>
+      <div className="p-4 bg-green-100 rounded shadow">
+        <h2>CPU Usage</h2>
+        <p>{status.cpu_usage}%</p>
+      </div>
+      <div className="p-4 bg-yellow-100 rounded shadow">
+        <h2>Memory Usage</h2>
+        <p>{status.mem_usage}%</p>
+      </div>
+      <div className="p-4 bg-red-100 rounded shadow">
+        <h2>Disk Usage</h2>
+        <p>{status.disk_usage}%</p>
+      </div>
+    </div>
+  );
+};
+
+// User Management Component
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetch("https://192.168.1.1/api/v2/status/dhcp_server/leases", {
+      headers: {
+        Accept: "application/json",
+        Authorization: "Basic " + btoa("admin:admin"),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setUsers(data.data || []));
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">User Management</h2>
+      <table className="w-full bg-white rounded shadow">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="p-4">Hostname</th>
+            <th className="p-4">IP</th>
+            <th className="p-4">MAC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user, idx) => (
+            <tr key={idx}>
+              <td className="p-4">{user.hostname || "N/A"}</td>
+              <td className="p-4">{user.ip}</td>
+              <td className="p-4">{user.mac}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// Firewall Management Component
+const FirewallManagement = () => {
+  const [blockedSites, setBlockedSites] = useState([]);
+  const [site, setSite] = useState("");
+
+  const fetchBlockedSites = async () => {
+    const res = await fetch("https://192.168.1.1/api/v2/firewall/aliases", {
+      headers: { Authorization: "Basic " + btoa("admin:admin") },
+    });
+    const data = await res.json();
+    setBlockedSites(data.data || []);
+  };
+
+  const blockSite = async () => {
+    await fetch("https://192.168.1.1/api/v2/firewall/alias", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Basic " + btoa("admin:admin"),
+      },
+      body: JSON.stringify({ name: site, type: "host" }),
+    });
+    setSite("");
+    fetchBlockedSites();
+  };
+
+  useEffect(() => {
+    fetchBlockedSites();
+  }, []);
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Firewall Management</h2>
+      <input
+        className="border p-2 rounded w-full mb-4"
+        value={site}
+        onChange={(e) => setSite(e.target.value)}
+        placeholder="Enter site to block"
+      />
+      <button onClick={blockSite} className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+        Block Site
+      </button>
+      <ul>
+        {blockedSites.map((s, idx) => (
+          <li key={idx} className="p-2 border-b">
+            {s.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+// Main Component
+const NetworkManagementPortal = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [user, setUser] = useState(null);
+
+  if (!user) return <Login onLogin={setUser} />;
+
+  return (
+    <div className="flex h-screen">
+      <div className="w-20 bg-white flex flex-col items-center shadow-md">
+        {[["dashboard", LayoutDashboard], ["users", Users], ["firewall", Shield]].map(
+          ([tab, Icon]) => (
+            <button
+              key={tab}
+              className={`p-4 ${activeTab === tab ? "bg-blue-100 text-blue-600" : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              <Icon />
+            </button>
+          )
+        )}
+        <button onClick={() => setUser(null)} className="mt-auto p-4 text-red-600">
+          <LogOut />
+        </button>
+      </div>
+      <div className="flex-1 p-6">
+        {activeTab === "dashboard" && <Dashboard />}
+        {activeTab === "users" && <UserManagement />}
+        {activeTab === "firewall" && <FirewallManagement />}
+      </div>
+    </div>
+  );
+};
+
+export default NetworkManagementPortal;
