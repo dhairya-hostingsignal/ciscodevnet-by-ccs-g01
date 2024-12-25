@@ -1,78 +1,70 @@
-# ciscodevnet-by-ccs-g01
-# Simple Captive Portal System
+# Getting Started with Create React App
 
-## Overview
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-This project implements a simple captive portal system for managing student internet access through a Raspberry Pi access point and a PfSense firewall. The architecture is straightforward, making it easy to understand and maintain.
+## Available Scripts
 
-## Key Components
+In the project directory, you can run:
 
-- **Hardware Setup:**
-  - **Main Router:** Provides internet connection.
-  - **Laptop:** Runs the PfSense firewall.
-  - **Raspberry Pi:** Acts as the access point for students.
+### `npm start`
 
-- **Network Flow:**
-  1. Students connect to the Raspberry Pi WiFi (access point).
-  2. Automatic redirect to the captive portal.
-  3. Students log in with credentials.
-  4. Access is granted or denied based on authentication.
-  5. Filtered internet access.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## Basic Folder Structure
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
+### `npm test`
 
-```mermaid
-graph TB
-    subgraph Student["Student Device"]
-        browser[Web Browser]
-        wifi[WiFi Client]
-    end
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-    subgraph RPi["Raspberry Pi Access Point"]
-        direction TB
-        hostapd[HostAPD<br/>SSID: School_Network]
-        dnsmasq[DNSMASQ<br/>DHCP: 192.168.4.2-254]
-        iptables[IPTables Rules<br/>Port 80/443 Redirect]
-    end
+### `npm run build`
 
-    subgraph PfSense["PfSense Server (Laptop)"]
-        direction TB
-        portal[Captive Portal<br/>https://portal.school.local]
-        freeRadius[FreeRADIUS Server]
-        firewall[Firewall Rules]
-        
-        subgraph Database["Authentication DB"]
-            users[(User Database)]
-            policies[(Policy Database)]
-        end
-    end
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-    subgraph Internet["Internet Access"]
-        web[Filtered Websites]
-    end
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-    %% Connection flow with numbered steps
-    wifi -->|"1. Connect to WiFi"| hostapd
-    hostapd -->|"2. Association"| dnsmasq
-    dnsmasq -->|"3. Assign IP"| wifi
-    browser -->|"4. Initial Web Request"| iptables
-    iptables -->|"5. Redirect to Portal"| portal
-    portal -->|"6. Auth Request"| freeRadius
-    freeRadius -->|"7. Verify"| users
-    users -->|"8. User Policy"| policies
-    policies -->|"9. Apply Rules"| firewall
-    firewall -->|"10. Filtered Access"| web
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-    %% Styles
-    classDef student fill:#6366f1,stroke:#6366f1,color:white;
-    classDef rpi fill:#047857,stroke:#047857,color:white;
-    classDef pfsense fill:#2374ab,stroke:#2374ab,color:white;
-    classDef db fill:#db2777,stroke:#db2777,color:white;
-    classDef internet fill:#9333ea,stroke:#9333ea,color:white;
+### `npm run eject`
 
-    class browser,wifi student;
-    class hostapd,dnsmasq,iptables rpi;
-    class portal,freeRadius,firewall pfsense;
-    class users,policies db;
-    class web internet;
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
